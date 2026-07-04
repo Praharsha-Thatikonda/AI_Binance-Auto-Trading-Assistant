@@ -4,7 +4,7 @@ Welcome to the **AI Binance Auto Trading Assistant**! This is an automated tradi
 
 ---
 
-## ✨ Features
+## ✨ Features 
 
 - **🔐 Binance Integration**: Securely connect to your Binance account using API Keys.
 - **💰 Real-time Balance**: View your current wallet balances directly from the unified dashboard.
