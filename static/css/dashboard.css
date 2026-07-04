@@ -1,0 +1,625 @@
+}
+
+.page-title {
+    margin: 0;
+}
+
+.page-subtitle {
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.status-pill {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+}
+
+.confidence-text {
+    font-weight: 700;
+    color: var(--accent-color);
+}
+
+/* Cards */
+.card-header {
+    margin-top: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 1.5rem;
+}
+
+.status-dot {
+    background: var(--accent-color);
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+/* Tabs */
+.tabs {
+    display: flex;
+    border-bottom: 1px solid var(--card-border);
+    margin-bottom: 1.5rem;
+}
+
+.tab-btn {
+    padding: 0.75rem 1.5rem;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-weight: 600;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+}
+
+.tab-btn:hover {
+    color: var(--text-primary);
+}
+
+.tab-btn.active {
+    color: var(--accent-color);
+    border-bottom-color: var(--accent-color);
+}
+
+.tab-btn-full {
+    flex: 1;
+    padding: 1rem;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+}
+
+.tab-btn-full.active {
+    color: white;
+    border-bottom: 2px solid var(--accent-color);
+}
+
+
+/* Controls */
+.control-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.input-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--text-secondary);
+}
+
+input,
+select {
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid var(--card-border);
+    color: white;
+    padding: 0.75rem;
+    border-radius: 8px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+input:focus,
+select:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.select-input {
+    width: 100%;
+    padding: 0.75rem;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--card-border);
+    color: white;
+    border-radius: 6px;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.btn-buy {
+    background: #10b981;
+}
+
+.btn-sell {
+    background: #ef4444;
+}
+
+.checkbox-group {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.auto-pilot-status {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.status-text {
+    margin-top: 1rem;
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+/* Analysis Results */
+.analysis-results {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.result-card {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 1rem;
+    border-radius: 8px;
+}
+
+.market-intel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.intel-title {
+    margin: 0;
+}
+
+.intel-subtitle {
+    margin: 0 0 0.5rem 0;
+}
+
+.intel-text {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.consensus-section {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--card-border);
+}
+
+.consensus-text {
+    margin: 0.5rem 0 0 0;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.signal-badge {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-weight: 800;
+    font-size: 1.2rem;
+    text-align: center;
+    width: 100%;
+    box-sizing: border-box;
+    margin: 1rem 0;
+}
+
+.signal-buy {
+    background: rgba(16, 185, 129, 0.2);
+    color: #34d399;
+    border: 1px solid #10b981;
+}
+
+.signal-sell {
+    background: rgba(239, 68, 68, 0.2);
+    color: #f87171;
+    border: 1px solid #ef4444;
+}
+
+.signal-hold {
+    background: rgba(245, 158, 11, 0.2);
+    color: #fbbf24;
+    border: 1px solid #f59e0b;
+}
+
+/* Tables */
+.table-container {
+    overflow-x: auto;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.table-header {
+    text-align: left;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--card-border);
+}
+
+.table-cell {
+    padding: 0.75rem 0.5rem;
+}
+
+.table-header-cell {
+    padding: 0.5rem;
+}
+
+/* Wallet Styles Moved to base.css */
+
+/* Logs & Chat */
+.log-container {
+    background: #000;
+    border-radius: 8px;
+    padding: 1rem;
+    height: 300px;
+    overflow-y: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: #34d399;
+}
+
+.log-entry {
+    margin-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 0.25rem;
+}
+
+.chat-container {
+    margin-top: 1.5rem;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    height: 500px;
+}
+
+.chat-history {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.chat-msg {
+    padding: 0.5rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+}
+
+.chat-msg.ai {
+    background: rgba(255, 255, 255, 0.05);
+    align-self: flex-start;
+    margin-right: 20%;
+}
+
+.chat-msg.user {
+    background: var(--accent-color);
+    align-self: flex-end;
+    margin-left: 20%;
+}
+
+.chat-input-area {
+    padding: 0.5rem;
+    border-top: 1px solid var(--card-border);
+    display: flex;
+    gap: 5px;
+}
+
+.chat-input {
+    flex: 1;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--card-border);
+    padding: 0.5rem;
+    color: white;
+    border-radius: 4px;
+}
+
+.chat-send-btn {
+    width: auto;
+    padding: 0 0.5rem;
+}
+
+/* Toggle Switch */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 48px;
+    height: 24px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.1);
+    transition: .4s;
+    border-radius: 24px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+.intel-title {
+    margin: 0;
+}
+
+.intel-subtitle {
+    margin: 0 0 0.5rem 0;
+}
+
+.intel-text {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.consensus-section {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--card-border);
+}
+
+.consensus-text {
+    margin: 0.5rem 0 0 0;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.signal-badge {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-weight: 800;
+    font-size: 1.2rem;
+    text-align: center;
+    width: 100%;
+    box-sizing: border-box;
+    margin: 1rem 0;
+}
+
+.signal-buy {
+    background: rgba(16, 185, 129, 0.2);
+    color: #34d399;
+    border: 1px solid #10b981;
+}
+
+.signal-sell {
+    background: rgba(239, 68, 68, 0.2);
+    color: #f87171;
+    border: 1px solid #ef4444;
+}
+
+.signal-hold {
+    background: rgba(245, 158, 11, 0.2);
+    color: #fbbf24;
+    border: 1px solid #f59e0b;
+}
+
+/* Tables */
+.table-container {
+    overflow-x: auto;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.table-header {
+    text-align: left;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--card-border);
+}
+
+.table-cell {
+    padding: 0.75rem 0.5rem;
+}
+
+.table-header-cell {
+    padding: 0.5rem;
+}
+
+/* Wallet Styles Moved to base.css */
+
+/* Logs & Chat */
+.log-container {
+    background: #000;
+    border-radius: 8px;
+    padding: 1rem;
+    height: 300px;
+    overflow-y: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: #34d399;
+}
+
+.log-entry {
+    margin-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 0.25rem;
+}
+
+.chat-container {
+    margin-top: 1.5rem;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    height: 500px;
+}
+
+.chat-history {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.chat-msg {
+    padding: 0.5rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+}
+
+.chat-msg.ai {
+    background: rgba(255, 255, 255, 0.05);
+    align-self: flex-start;
+    margin-right: 20%;
+}
+
+.chat-msg.user {
+    background: var(--accent-color);
+    align-self: flex-end;
+    margin-left: 20%;
+}
+
+.chat-input-area {
+    padding: 0.5rem;
+    border-top: 1px solid var(--card-border);
+    display: flex;
+    gap: 5px;
+}
+
+.chat-input {
+    flex: 1;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--card-border);
+    padding: 0.5rem;
+    color: white;
+    border-radius: 4px;
+}
+
+.chat-send-btn {
+    width: auto;
+    padding: 0 0.5rem;
+}
+
+/* Toggle Switch */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 48px;
+    height: 24px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.1);
+    transition: .4s;
+    border-radius: 24px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked+.slider {
+    background-color: var(--success-color);
+}
+
+input:checked+.slider:before {
+    transform: translateX(24px);
+}
+
+/* Auto-Pilot Buttons */
+.btn-start {
+    background: #10b981;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-start:hover {
+    background: #059669;
+}
+
+.btn-start:disabled {
+    background: rgba(16, 185, 129, 0.2);
+    cursor: not-allowed;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.btn-stop {
+    background: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-stop:hover {
+    background: #dc2626;
+}
+
+.btn-stop:disabled {
+    background: rgba(239, 68, 68, 0.2);
+    cursor: not-allowed;
+    color: rgba(255, 255, 255, 0.5);
+}

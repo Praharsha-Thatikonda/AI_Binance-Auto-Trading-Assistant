@@ -1,0 +1,339 @@
+document.addEventListener('DOMContentLoaded', () => {
+    const startAiBtn = document.getElementById('start-ai-btn');
+    const aiOutput = document.getElementById('ai-output');
+    const aiStatus = document.getElementById('ai-status');
+    const symbolSelect = document.getElementById('symbol');
+    const geminiKeyInput = document.getElementById('gemini_key');
+    const autoTradeToggle = document.getElementById('auto-trade-toggle');
+    const tradeAmountInput = document.getElementById('trade-amount');
+    const tradeLog = document.getElementById('trade-log');
+
+    // Output elements
+    const techContent = document.getElementById('tech-content');
+    const fundContent = document.getElementById('fund-content');
+    const riskContent = document.getElementById('risk-content');
+    const signalText = document.getElementById('signal-text');
+    const confidenceText = document.getElementById('confidence-text');
+    const reasoningContent = document.getElementById('reasoning-content');
+
+    let autoTradeInterval = null;
+    let isAnalyzing = false;
+
+    function log(message) {
+        const div = document.createElement('div');
+        div.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+        div.className = 'log-entry';
+        tradeLog.prepend(div);
+    }
+
+    // --- New Trading Features ---
+
+    // --- Tab Switching Logic ---
+    window.switchMode = function (mode) {
+        // Update Tabs
+        document.getElementById('tab-manual').style.borderBottom = mode === 'manual' ? '2px solid var(--accent-color)' : 'none';
+        document.getElementById('tab-manual').style.color = mode === 'manual' ? 'white' : 'var(--text-secondary)';
+
+        document.getElementById('tab-auto').style.borderBottom = mode === 'auto' ? '2px solid var(--accent-color)' : 'none';
+        document.getElementById('tab-auto').style.color = mode === 'auto' ? 'white' : 'var(--text-secondary)';
+
+        // Show/Hide Panels
+        document.getElementById('manual-panel').style.display = mode === 'manual' ? 'block' : 'none';
+        document.getElementById('auto-panel').style.display = mode === 'auto' ? 'block' : 'none';
+    }
+
+    // Toggle Limit Price Input (Manual)
+    window.togglePriceInput = function () {
+        const type = document.getElementById('order-type').value;
+        const priceGroup = document.getElementById('limit-price-group');
+        if (priceGroup) {
+            priceGroup.style.display = type === 'limit' ? 'grid' : 'none';
+        }
+    }
+
+    // Helper to get active agents
+    function getActiveAgents() {
+        const agents = [];
+        const checkboxes = document.querySelectorAll('#auto-panel input[type="checkbox"]');
+        checkboxes.forEach(cb => {
+            if (cb.id === 'auto-trade-toggle') return;
+            if (cb.checked) {
+                const text = cb.parentElement.textContent.trim().toLowerCase();
+                if (text.includes('technical')) agents.push('technical');
+                if (text.includes('sentiment')) agents.push('sentiment');
+                if (text.includes('macro')) agents.push('macro');
+                if (text.includes('whale')) agents.push('whale');
+            }
+        });
+        return agents.join(',');
+    }
+
+    // Save AI Key & Config
+    window.saveAIKey = async function () {
+        const key = document.getElementById('gemini_key').value;
+        const risk = document.getElementById('risk-level').value;
+        const strategy = document.getElementById('strategy').value;
+        const interval = document.getElementById('trading-interval').value;
+        const maxLoss = document.getElementById('max-daily-loss').value;
+        const targetProfit = document.getElementById('target-profit').value;
+        const activeAgents = getActiveAgents();
+
+        const payload = {
+            gemini_api_key: key,
+            risk_level: risk,
+            trading_strategy: strategy,
+            trading_interval: interval,
+            max_daily_loss: maxLoss ? parseFloat(maxLoss) : null,
+            target_profit: targetProfit ? parseFloat(targetProfit) : null,
+            active_agents: activeAgents
+        };
+
+        try {
+            const res = await fetch('/ai/config', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (res.ok) {
+                if (key) {
+                    document.getElementById('gemini_key').parentElement.style.display = 'none';
+                    document.getElementById('key-status').style.display = 'block';
+                }
+                log("Configuration saved successfully.");
+            } else {
+                alert("Failed to save config");
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    // Execute Manual Trade
+    window.executeManualTrade = async function (side) {
+        const symbol = symbolSelect.value;
+        const type = document.getElementById('order-type').value;
+        const percentage = parseFloat(tradeAmountInput.value);
+        const price = document.getElementById('limit-price').value;
+        const stopLoss = document.getElementById('stop-loss').value;
+        const takeProfit = document.getElementById('take-profit').value;
+
+        log(`Executing MANUAL ${side.toUpperCase()} order for ${symbol}...`);
+
+        try {
+            const payload = {
+                symbol: symbol,
+                side: side,
+                type: type,
+                percentage: percentage,
+                price: price ? parseFloat(price) : null,
+                stop_loss: stopLoss ? parseFloat(stopLoss) : null,
+                take_profit: takeProfit ? parseFloat(takeProfit) : null
+            };
+
+            const response = await fetch('/trading/order', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            const result = await response.json();
+            if (result.status === 'success') {
+                log(`SUCCESS: Order ${result.order_id} placed.`);
+                fetchOrderHistory();
+            } else {
+                log(`FAILED: ${result.detail || 'Unknown error'}`);
+            }
+        } catch (e) {
+            log(`System Error: ${e.message}`);
+        }
+    }
+
+    // Fetch Order History
+    async function fetchOrderHistory() {
+        try {
+            const res = await fetch('/trading/history');
+            const orders = await res.json();
+            const tbody = document.getElementById('order-history-body');
+            if (!tbody) return;
+
+            tbody.innerHTML = '';
+
+            if (orders.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="padding: 1rem; text-align: center; color: var(--text-secondary);">No recent orders found.</td></tr>';
+                return;
+            }
+
+            orders.forEach(order => {
+                const date = new Date(order.timestamp).toLocaleString();
+                const color = order.side === 'buy' ? '#10b981' : '#ef4444';
+                const row = `
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                        <td style="padding: 0.75rem 0.5rem;">${date}</td>
+                        <td style="padding: 0.75rem 0.5rem; font-weight: 600;">${order.symbol}</td>
+                        <td style="padding: 0.75rem 0.5rem; color: ${color}; text-transform: uppercase;">${order.side}</td>
+                        <td style="padding: 0.75rem 0.5rem;">${order.price || 'Market'}</td>
+                        <td style="padding: 0.75rem 0.5rem;">${order.amount}</td>
+                        <td style="padding: 0.75rem 0.5rem;">${order.status}</td>
+                    </tr>
+                `;
+                tbody.innerHTML += row;
+            });
+        } catch (e) {
+            console.error("Error fetching history:", e);
+        }
+    }
+
+    // Execute Trade (Updated for AI)
+    async function executeTrade(signal, confidence) {
+        // AI uses market orders for now
+        const symbol = symbolSelect.value;
+        const percentage = 10; // Default AI trade size
+
+        log(`AI Executing ${signal.toUpperCase()} order for ${symbol}...`);
+
+        try {
+            const response = await fetch('/trading/order', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    symbol: symbol,
+                    side: signal.toLowerCase(),
+                    type: 'market',
+                    percentage: percentage
+                })
+            });
+
+            const result = await response.json();
+            if (result.status === 'success') {
+                log(`SUCCESS: Order ${result.order_id} placed.`);
+                fetchOrderHistory();
+            } else {
+                log(`FAILED: ${result.detail || 'Unknown error'}`);
+            }
+        } catch (e) {
+            log(`System Error: ${e.message}`);
+        }
+    }
+
+    // --- AI Logic ---
+
+    async function runAnalysisAndTrade() {
+        if (isAnalyzing) return;
+        isAnalyzing = true;
+
+        const symbol = symbolSelect.value;
+        const geminiInput = document.getElementById('gemini_key');
+        const isAuto = autoTradeToggle.checked;
+
+        // Check if key is visible (meaning not saved) and empty
+        if (geminiInput && geminiInput.offsetParent !== null && !geminiInput.value) {
+            log("Error: Missing Gemini API Key");
+            alert("Please enter Gemini API Key or Save it first.");
+            isAnalyzing = false;
+            if (isAuto) {
+                autoTradeToggle.checked = false;
+                stopAutoTrade();
+            }
+            return;
+        }
+
+        aiStatus.textContent = "Scanning market...";
+        aiStatus.style.background = "rgba(255, 255, 0, 0.2)";
+
+        try {
+            // 1. Analyze
+            const response = await fetch('/ai/analyze', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    symbol: symbol,
+                    timeframe: '1h',
+                    model: document.getElementById('ai-model').value,
+                    risk_level: document.getElementById('risk-level').value,
+                    strategy: document.getElementById('strategy').value,
+                    active_agents: getActiveAgents()
+                })
+            });
+
+            if (!response.ok) throw new Error("Analysis failed");
+            const data = await response.json();
+
+            // Update UI
+            techContent.textContent = data.technical_analysis;
+            fundContent.textContent = data.fundamental_analysis;
+            riskContent.textContent = data.risk_assessment;
+            signalText.textContent = data.consensus_signal;
+            signalText.className = `signal-${data.consensus_signal.toLowerCase()}`;
+            confidenceText.textContent = `${(data.confidence_score * 100).toFixed(0)}% Conf.`;
+            reasoningContent.textContent = data.reasoning;
+            aiOutput.style.display = 'grid';
+
+            log(`Analysis Complete: ${data.consensus_signal} (${(data.confidence_score * 100).toFixed(0)}%)`);
+
+            // 2. Auto-Trade Logic
+            if (isAuto) {
+                const confidenceThreshold = 0.8; // Only trade if > 80% confident
+
+                if (data.confidence_score >= confidenceThreshold) {
+                    if (data.consensus_signal === 'BUY' || data.consensus_signal === 'SELL') {
+                        await executeTrade(data.consensus_signal, data.confidence_score);
+                    } else {
+                        log("Signal is HOLD. No action taken.");
+                    }
+                } else {
+                    log(`Skipping trade: Confidence too low (< ${(confidenceThreshold * 100)}%)`);
+                }
+            }
+
+            aiStatus.textContent = isAuto ? "Auto-Pilot Active" : "Analysis Complete";
+            aiStatus.style.background = "rgba(16, 185, 129, 0.2)";
+
+        } catch (error) {
+            aiStatus.textContent = "Error";
+            aiStatus.style.background = "rgba(239, 68, 68, 0.2)";
+            log(`Error: ${error.message}`);
+            console.error(error);
+        } finally {
+            isAnalyzing = false;
+        }
+    }
+
+    function startAutoTrade() {
+        const intervalVal = document.getElementById('trading-interval').value;
+        let ms = 3600000; // Default 1h
+        if (intervalVal === '1m') ms = 60000;
+        if (intervalVal === '5m') ms = 300000;
+        if (intervalVal === '15m') ms = 900000;
+
+        log(`Starting Auto-Pilot (Interval: ${intervalVal})...`);
+        runAnalysisAndTrade(); // Run immediately
+        autoTradeInterval = setInterval(runAnalysisAndTrade, ms);
+    }
+
+    function stopAutoTrade() {
+        log("Stopping Auto-Pilot.");
+        clearInterval(autoTradeInterval);
+        autoTradeInterval = null;
+        aiStatus.textContent = "System Idle";
+    }
+
+    if (startAiBtn) {
+        startAiBtn.addEventListener('click', () => {
+            runAnalysisAndTrade();
+        });
+    }
+
+    if (autoTradeToggle) {
+        autoTradeToggle.addEventListener('change', (e) => {
+            if (e.target.checked) {
+                startAutoTrade();
+            } else {
+                stopAutoTrade();
+            }
+        });
+    }
+
+    // Initial load
+    fetchOrderHistory();
+});

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Binance Account - Devil AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/base.css">
+    <link rel="stylesheet" href="/static/css/verify.css">
+</head>
+
+<body>
+    <div class="verify-container">
+        <div class="glass-card">
+            <div class="logo" style="text-align: center; margin-bottom: 1rem;">DEVIL AI</div>
+            <h2 class="verify-title">Connect Exchange</h2>
+            <p class="verify-subtitle">
+                To activate the AI Trading Bot, please verify your Binance account.
+            </p>
+
+            {% if error %}
+            <div class="alert-error">
+                {{ error | safe }}
+            </div>
+            {% endif %}
+
+            <form action="/auth/verify-binance" method="post">
+                <div class="form-group">
+                    <label class="input-label">Binance API Key</label>
+                    <input type="text" name="api_key" required placeholder="Paste API Key">
+                </div>
+
+                <div class="form-group-lg">
+                    <label class="input-label">Binance Secret Key</label>
+                    <input type="password" name="secret_key" required placeholder="Paste Secret Key">
+                </div>
+
+                <button type="submit" class="btn-primary">Verify & Launch Dashboard</button>
+            </form>
+
+            <div class="ip-helper">
+                <h3 class="helper-title">Connection Helper</h3>
+                <p>If you get a <strong>-2015 Error</strong>, whitelist this IP:</p>
+                <div class="ip-display">
+                    <code id="current-ip" class="ip-code">Loading IP...</code>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/verify.js"></script>
+</body>
+
+</html>

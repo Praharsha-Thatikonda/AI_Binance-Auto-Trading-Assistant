@@ -1,0 +1,222 @@
+{% extends "base.html" %}
+
+{% block styles %}
+<link rel="stylesheet" href="/static/css/profile.css">
+{% endblock %}
+
+{% block content %}
+<div class="settings-container">
+    <div class="settings-sidebar">
+        <div class="user-mini-profile">
+            <div class="mini-avatar">{{ user.full_name[:2].upper() }}</div>
+            <div class="mini-info">
+                <div class="mini-name">{{ user.full_name }}</div>
+                <div class="mini-role">Pro Account</div>
+            </div>
+        </div>
+
+        <nav class="settings-nav">
+            <div class="nav-label">Account</div>
+            <button class="nav-item active" onclick="switchSettingsTab('profile')">
+                <span class="nav-icon">👤</span> Profile
+            </button>
+            <button class="nav-item" onclick="switchSettingsTab('security')">
+                <span class="nav-icon">🛡️</span> Security
+            </button>
+            <button class="nav-item" onclick="switchSettingsTab('preferences')">
+                <span class="nav-icon">⚡</span> Preferences
+            </button>
+
+            <div class="nav-label" style="margin-top: 1.5rem;">System</div>
+            <button class="nav-item" onclick="switchSettingsTab('api')">
+                <span class="nav-icon">🔌</span> API Keys
+            </button>
+            <button class="nav-item danger-item" onclick="location.href='/auth/logout'">
+                <span class="nav-icon">🚪</span> Log Out
+            </button>
+        </nav>
+    </div>
+
+    <div class="settings-main">
+        <!-- Tab 1: Profile Details -->
+        <div id="tab-profile" class="settings-content active">
+            <header class="content-header">
+                <h2>Public Profile</h2>
+                <p>Manage how you appear across the platform.</p>
+            </header>
+
+            <div class="profile-banner">
+                <div class="banner-avatar">
+                    <span>{{ user.full_name[:2].upper() }}</span>
+                    <button class="edit-avatar-btn">✏️</button>
+                </div>
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="p_fullname" value="{{ user.full_name }}">
+                </div>
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" value="{{ user.username }}" disabled style="opacity: 0.7;">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" value="{{ user.email }}" disabled style="opacity: 0.7;">
+                </div>
+                <div class="form-group">
+                    <label>Phone Number</label>
+                    <input type="tel" id="p_phone" value="{{ user.phone_number }}">
+                </div>
+                <div class="form-group">
+                    <label>Gender</label>
+                    <select id="p_gender" class="select-input"
+                        style="width: 100%; padding: 0.75rem; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--card-border); border-radius: 6px; color: var(--text-primary);">
+                        <option value="Male" {% if user.gender=='Male' %}selected{% endif %}>Male</option>
+                        <option value="Female" {% if user.gender=='Female' %}selected{% endif %}>Female</option>
+                        <option value="Other" {% if user.gender=='Other' %}selected{% endif %}>Other</option>
+                    </select>
+                </div>
+                <div class="form-group span-2">
+                    <label>Bio</label>
+                    <textarea id="p_bio" rows="3"
+                        placeholder="Tell us about your trading style...">{{ user.bio if user.bio else '' }}</textarea>
+                </div>
+            </div>
+
+            <div class="action-footer">
+                <button class="btn-primary">Save Changes</button>
+            </div>
+        </div>
+
+        <!-- Tab 2: Security -->
+        <div id="tab-security" class="settings-content">
+            <header class="content-header">
+                <h2>Security</h2>
+                <p>Protect your account and assets.</p>
+            </header>
+
+            <div class="security-card">
+                <div class="sec-icon">🔒</div>
+                <div class="sec-info">
+                    <h3>Password</h3>
+                    <p>Last changed 3 months ago</p>
+                </div>
+                <button class="btn-outline">Update</button>
+            </div>
+
+            <div class="security-card">
+                <div class="sec-icon">📱</div>
+                <div class="sec-info">
+                    <h3>2-Step Verification</h3>
+                    <p>Add an extra layer of security.</p>
+                </div>
+                <label class="toggle">
+                    <input type="checkbox" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <div class="security-card"
+                style="border-color: rgba(239, 68, 68, 0.3); background: rgba(239, 68, 68, 0.05);">
+                <div class="sec-icon" style="background: rgba(239, 68, 68, 0.2); color: #ef4444;">⚠️</div>
+                <div class="sec-info">
+                    <h3>Delete Account</h3>
+                    <p>Permanently remove your account and all data.</p>
+                </div>
+                <button class="btn-outline" style="color: #ef4444; border-color: #ef4444;"
+                    onclick="confirmDeleteAccount()">Delete</button>
+            </div>
+        </div>
+
+        <!-- Tab 3: Preferences -->
+        <div id="tab-preferences" class="settings-content">
+            <header class="content-header">
+                <h2>Preferences</h2>
+                <p>Customize your trading experience.</p>
+            </header>
+
+            <div class="pref-group">
+                <div class="pref-item">
+                    <div>
+                        <h3>Dark Mode</h3>
+                        <p>Easier on the eyes.</p>
+                    </div>
+                    <label class="toggle">
+                        <input type="checkbox" checked disabled>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="pref-item">
+                    <div>
+                        <h3>Trade Sounds</h3>
+                        <p>Play a sound when orders fill.</p>
+                    </div>
+                    <label class="toggle">
+                        <input type="checkbox" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 4: API -->
+        <div id="tab-api" class="settings-content">
+            <header class="content-header">
+                <h2>API Connections</h2>
+                <p>Manage external exchange connections.</p>
+            </header>
+
+            <div class="api-list">
+                <div class="api-item connected">
+                    <div class="api-logo">B</div>
+                    <div class="api-details">
+                        <h3>Binance</h3>
+                        <span class="status-badge">Connected</span>
+                    </div>
+                    <button class="btn-outline">Manage</button>
+                </div>
+                <div class="api-item">
+                    <div class="api-logo" style="background: #2ebac6;">K</div>
+                    <div class="api-details">
+                        <h3>KuCoin</h3>
+                        <span class="status-badge" style="background: rgba(255,255,255,0.1); color: #999;">Not
+                            Connected</span>
+                    </div>
+                    <button class="btn-primary">Connect</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Password Modal -->
+<div id="password-modal" class="modal"
+    style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center;">
+    <div class="glass-card" style="width: 400px; max-width: 90%;">
+        <h3 style="margin-top: 0;">Change Password</h3>
+        <div class="form-group">
+            <label>Current Password</label>
+            <input type="password" id="m_current_pass">
+        </div>
+        <div class="form-group">
+            <label>New Password</label>
+            <input type="password" id="m_new_pass">
+        </div>
+        <div class="form-group">
+            <label>Confirm Password</label>
+            <input type="password" id="m_confirm_pass">
+        </div>
+        <div class="action-buttons" style="margin-top: 1.5rem; display: flex; gap: 1rem;">
+            <button class="btn-primary" onclick="submitPasswordChange()">Update</button>
+            <button class="btn-outline"
+                onclick="document.getElementById('password-modal').style.display='none'">Cancel</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/profile.js"></script>
+{% endblock %}

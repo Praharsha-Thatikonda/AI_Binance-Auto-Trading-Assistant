@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Devil AI - Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/base.css">
+    <link rel="stylesheet" href="/static/css/login.css">
+</head>
+
+<body>
+    <div class="login-container">
+        <div class="glass-card">
+            <div class="logo logo-center">DEVIL AI</div>
+
+            {% if error %}
+            <div class="alert-error">
+                {{ error | safe }}
+            </div>
+            {% endif %}
+
+            {% if success %}
+            <div class="alert-success">
+                {{ success }}
+            </div>
+            {% endif %}
+
+            <div class="auth-tabs">
+                <div class="auth-tab {% if active_tab != 'register' %}active{% endif %}" onclick="switchTab('login')">
+                    Login</div>
+                <div class="auth-tab {% if active_tab == 'register' %}active{% endif %}"
+                    onclick="switchTab('register')">Register</div>
+            </div>
+
+            <!-- Login Form -->
+            <div id="login-form" class="form-section {% if active_tab != 'register' %}active{% endif %}">
+                <form action="/auth/login" method="post">
+                    <div class="form-group">
+                        <label class="input-label">Username</label>
+                        <input type="text" name="username" required placeholder="Enter username">
+                    </div>
+                    <div class="form-group-lg">
+                        <label class="input-label">Password</label>
+                        <input type="password" name="password" required placeholder="Enter password">
+                    </div>
+                    <button type="submit" class="btn-primary">Login</button>
+                </form>
+            </div>
+
+            <!-- Register Form -->
+            <div id="register-form" class="form-section {% if active_tab == 'register' %}active{% endif %}">
+                <form action="/auth/register" method="post">
+                    <div class="form-group">
+                        <label class="input-label">Full Name</label>
+                        <input type="text" name="full_name" value="{{ full_name or '' }}" required
+                            placeholder="Enter full name">
+                    </div>
+                    <div class="form-group">
+                        <label class="input-label">Gender</label>
+                        <select name="gender" required class="select-input">
+                            <option value="" disabled {% if not gender %}selected{% endif %}>Select Gender</option>
+                            <option value="Male" {% if gender=='Male' %}selected{% endif %}>Male</option>
+                            <option value="Female" {% if gender=='Female' %}selected{% endif %}>Female</option>
+                            <option value="Other" {% if gender=='Other' %}selected{% endif %}>Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="input-label">Phone Number</label>
+                        <input type="tel" name="phone_number" value="{{ phone_number or '' }}" required
+                            placeholder="Enter phone number">
+                    </div>
+                    <div class="form-group">
+                        <label class="input-label">Email ID</label>
+                        <input type="email" name="email" value="{{ email or '' }}" required
+                            placeholder="Enter email address">
+                    </div>
+                    <div class="form-group">
+                        <label class="input-label">Username</label>
+                        <input type="text" name="username" value="{{ username or '' }}" required
+                            placeholder="Choose a username">
+                    </div>
+                    <div class="form-group">
+                        <label class="input-label">Password</label>
+                        <input type="password" name="password" required placeholder="Choose a password">
+                    </div>
+                    <div class="form-group-lg">
+                        <label class="input-label">Confirm Password</label>
+                        <input type="password" name="confirm_password" required placeholder="Confirm your password">
+                    </div>
+                    <button type="submit" class="btn-primary btn-register">Create Account</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/login.js"></script>
+</body>
+
+</html>

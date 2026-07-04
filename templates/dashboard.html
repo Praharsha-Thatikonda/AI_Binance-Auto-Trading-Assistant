@@ -1,0 +1,338 @@
+{% extends "base.html" %}
+
+{% block styles %}
+<link rel="stylesheet" href="/static/css/dashboard.css">
+{% endblock %}
+
+{% block content %}
+<header class="dashboard-header" style="display: flex; justify-content: space-between; align-items: flex-start;">
+    <div>
+        <h1 class="page-title">Dashboard</h1>
+        <p class="page-subtitle">Welcome back, Trader.</p>
+    </div>
+    <div class="status-pill" style="align-self: flex-start;">
+        System Online
+        <span id="confidence-text" class="confidence-text">0% Confidence</span>
+    </div>
+</header>
+
+<div class="dashboard-grid">
+    <!-- Left Column: AI Control & Orders -->
+    <div class="col-span-8">
+        <!-- AI Command Center -->
+        <div class="glass-card">
+            <h2 class="card-header">
+                <span class="status-dot"></span>
+                AI Command Center
+            </h2>
+
+            <!-- Mode Tabs -->
+            <div class="tabs">
+                <button class="tab-btn-full active" onclick="switchMode('manual')" id="tab-manual">Manual
+                    Trading</button>
+                <button class="tab-btn-full" onclick="switchMode('auto')" id="tab-auto">Auto-Pilot Mode</button>
+            </div>
+
+            <!-- Common Asset Selector -->
+            <div class="control-group">
+                <div>
+                    <label class="input-label">Target Asset</label>
+                    <select id="symbol" class="select-input">
+                        <option value="BTC/USDT">Bitcoin (BTC/USDT)</option>
+                        <option value="ETH/USDT">Ethereum (ETH/USDT)</option>
+                        <option value="SOL/USDT">Solana (SOL/USDT)</option>
+                        <option value="BNB/USDT">Binance Coin (BNB/USDT)</option>
+                        <option value="XRP/USDT">Ripple (XRP/USDT)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Manual Trading Panel -->
+            <div id="manual-panel">
+                <div class="control-group">
+                    <div>
+                        <label class="input-label">Order Type</label>
+                        <select id="order-type" onchange="togglePriceInput()">
+                            <option value="market">Market Order</option>
+                            <option value="limit">Limit Order</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="input-label">Quantity (%)</label>
+                        <input type="number" id="trade-amount" value="10" min="1" max="100">
+                    </div>
+                </div>
+
+                <div class="control-group" id="limit-price-group" style="display: none;">
+                    <div>
+                        <label class="input-label">Limit Price (USDT)</label>
+                        <input type="number" id="limit-price" placeholder="0.00">
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <div>
+                        <label class="input-label">Stop Loss (Optional)</label>
+                        <input type="number" id="stop-loss" placeholder="Trigger Price">
+                    </div>
+                    <div>
+                        <label class="input-label">Take Profit (Optional)</label>
+                        <input type="number" id="take-profit" placeholder="Target Price">
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button onclick="executeManualTrade('buy')" class="btn-primary btn-buy">Buy / Long</button>
+                    <button onclick="executeManualTrade('sell')" class="btn-primary btn-sell">Sell / Short</button>
+                </div>
+            </div>
+
+            <!-- Auto-Pilot Panel -->
+            <div id="auto-panel" style="display: none;">
+                <div class="control-group">
+                    <div>
+                        <label class="input-label">AI Model</label>
+                        <select id="ai-model">
+                            <option value="gemini-pro">Gemini Pro (Google)</option>
+                            <option value="gpt-4">GPT-4 (OpenAI)</option>
+                            <option value="claude-3">Claude 3 (Anthropic)</option>
+                            <option value="llama-3">Llama 3 (Local/Groq)</option>
+                            <option value="custom-lstm">Custom LSTM (Local)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="input-label">Execution Interval</label>
+                        <select id="trading-interval">
+                            <option value="1m">Every 1 Minute</option>
+                            <option value="5m">Every 5 Minutes</option>
+                            <option value="15m">Every 15 Minutes</option>
+                            <option value="1h" selected>Every 1 Hour</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <div>
+                        <label class="input-label">Risk Profile</label>
+                        <select id="risk-level">
+                            <option value="low">Low Risk (Conservative)</option>
+                            <option value="medium" selected>Medium Risk (Balanced)</option>
+                            <option value="high">High Risk (Aggressive)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="input-label">Strategy</label>
+                        <select id="strategy">
+                            <option value="trend" selected>Trend Following</option>
+                            <option value="scalping">Scalping (Fast)</option>
+                            <option value="swing">Swing Trading</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <div>
+                        <label class="input-label">Max Daily Loss ($)</label>
+                        <input type="number" id="max-daily-loss" placeholder="e.g. 50">
+                    </div>
+                    <div>
+                        <label class="input-label">Target Profit ($)</label>
+                        <input type="number" id="target-profit" placeholder="e.g. 100">
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <label class="input-label">Active Agents</label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" checked disabled> Technical Analyst
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" checked> Sentiment Analyst
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox"> Macro Economist
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox"> Whale Tracker
+                        </label>
+                    </div>
+                </div>
+
+                <div class="auto-pilot-status">
+                    <span style="font-weight: 600;">Auto-Pilot Status</span>
+                    <div class="auto-pilot-controls" style="display: flex; gap: 1rem;">
+                        <button id="start-auto-btn" class="btn-primary btn-start"
+                            style="padding: 0.5rem 1rem; width: auto;">Start</button>
+                        <button id="stop-auto-btn" class="btn-primary btn-stop"
+                            style="padding: 0.5rem 1rem; width: auto;" disabled>Stop</button>
+                    </div>
+                </div>
+
+                <div id="ai-status" class="status-text">System Idle</div>
+            </div>
+        </div>
+
+        <!-- Analysis Results (Hidden by default) -->
+        <div id="ai-output" class="glass-card" style="margin-top: 1.5rem; display: none;">
+            <div class="market-intel-header">
+                <h3 class="intel-title">Market Intelligence</h3>
+                <div class="signal-badge" id="signal-text">WAITING</div>
+            </div>
+
+            <div class="analysis-results">
+                <div class="result-card">
+                    <h4 class="intel-subtitle" style="color: #60a5fa;">Technical</h4>
+                    <p id="tech-content" class="intel-text">...</p>
+                </div>
+                <div class="result-card">
+                    <h4 class="intel-subtitle" style="color: #a78bfa;">Sentiment</h4>
+                    <p id="fund-content" class="intel-text">...</p>
+                </div>
+                <div class="result-card">
+                    <h4 class="intel-subtitle" style="color: #f472b6;">Risk</h4>
+                    <p id="risk-content" class="intel-text">...</p>
+                </div>
+            </div>
+            <div class="consensus-section">
+                <strong style="color: var(--text-primary);">Consensus Logic:</strong>
+                <p id="reasoning-content" class="consensus-text">...</p>
+            </div>
+        </div>
+
+        <!-- Recent Orders -->
+        <div class="glass-card" style="margin-top: 1.5rem;">
+            <h3 style="margin-top: 0; margin-bottom: 1rem;">Recent Orders</h3>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr class="table-header">
+                            <th class="table-header-cell">Time</th>
+                            <th class="table-header-cell">Symbol</th>
+                            <th class="table-header-cell">Side</th>
+                            <th class="table-header-cell">Price</th>
+                            <th class="table-header-cell">Amount</th>
+                            <th class="table-header-cell">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="order-history-body">
+                        <tr>
+                            <td colspan="6" style="padding: 1rem; text-align: center; color: var(--text-secondary);">
+                                Loading...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Wallet, Market Data, Logs -->
+    <div class="col-span-4">
+        <!-- Wallet -->
+        <div class="glass-card balance-card">
+            <div class="wallet-header">
+                <h3 class="wallet-title">Total Balance</h3>
+                <span class="wallet-status">Binance Connected ●</span>
+            </div>
+            <div class="assets-list">
+                {% if assets %}
+                {% for asset, amount in assets.items() %}
+                <div class="asset-row">
+                    <span style="font-weight: 600;">{{ asset }}</span>
+                    <span class="asset-amount">{{ amount }}</span>
+                </div>
+                {% endfor %}
+                {% else %}
+                <p style="color: var(--text-secondary);">No assets found.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Market Data Table -->
+        <div class="glass-card market-data-card" style="margin-top: 1.5rem;">
+            <h3 class="wallet-title" style="margin-bottom: 1rem;">Market Data</h3>
+            <div class="table-container" style="max-height: 200px; overflow-y: auto;">
+                <table class="data-table">
+                    <thead>
+                        <tr class="table-header">
+                            <th class="table-header-cell" style="padding: 0.5rem;">Symbol</th>
+                            <th class="table-header-cell" style="padding: 0.5rem;">Price</th>
+                            <th class="table-header-cell" style="padding: 0.5rem;">24h %</th>
+                        </tr>
+                    </thead>
+                    <tbody id="market-data-body">
+                        <!-- Placeholder Data -->
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                            <td style="padding: 0.5rem;">BTC/USDT</td>
+                            <td style="padding: 0.5rem;">96,450.00</td>
+                            <td style="padding: 0.5rem; color: #10b981;">+2.4%</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                            <td style="padding: 0.5rem;">ETH/USDT</td>
+                            <td style="padding: 0.5rem;">3,540.00</td>
+                            <td style="padding: 0.5rem; color: #ef4444;">-1.2%</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                            <td style="padding: 0.5rem;">SOL/USDT</td>
+                            <td style="padding: 0.5rem;">145.20</td>
+                            <td style="padding: 0.5rem; color: #10b981;">+5.1%</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                            <td style="padding: 0.5rem;">BNB/USDT</td>
+                            <td style="padding: 0.5rem;">610.50</td>
+                            <td style="padding: 0.5rem; color: #10b981;">+0.8%</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                            <td style="padding: 0.5rem;">XRP/USDT</td>
+                            <td style="padding: 0.5rem;">0.62</td>
+                            <td style="padding: 0.5rem; color: #ef4444;">-0.5%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Live Logs & Chat -->
+        <div class="glass-card chat-container">
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchRightTab('logs')">System Logs</button>
+                <button class="tab-btn" onclick="switchRightTab('chat')">AI Assistant</button>
+            </div>
+
+            <div id="logs-panel" style="flex: 1; overflow-y: auto; padding: 1rem;">
+                <div id="trade-log" class="log-container">
+                    <div class="log-entry">[SYSTEM] Dashboard initialized.</div>
+                    <div class="log-entry">[SYSTEM] Connected to Binance Node.</div>
+                    <div class="log-entry">[SYSTEM] Waiting for user command...</div>
+                </div>
+            </div>
+
+            <div id="chat-panel" style="flex: 1; display: none; flex-direction: column;">
+                <div id="dashboard-chat-history" class="chat-history">
+                    <div class="chat-msg ai">
+                        Hello! I'm monitoring your trades.
+                    </div>
+                </div>
+                <div class="chat-controls"
+                    style="padding: 0.5rem; border-top: 1px solid rgba(255,255,255,0.05); display: flex; gap: 0.5rem;">
+                    <select id="chat-model-select" class="select-input" style="font-size: 0.8rem; padding: 0.25rem;">
+                        <option value="auto">Auto (Best Available)</option>
+                        <option value="multi">Multi-Agent Consensus</option>
+                        <option value="gemini-pro">Gemini Pro</option>
+                        <option value="gpt-4">GPT-4</option>
+                        <option value="claude-3">Claude 3</option>
+                    </select>
+                </div>
+                <div class="chat-input-area">
+                    <input type="text" id="dashboard-chat-input" placeholder="Ask AI..." class="chat-input">
+                    <button onclick="sendDashboardMessage()" class="btn-primary chat-send-btn">➤</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/dashboard.js"></script>
+{% endblock %}

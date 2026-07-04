@@ -1,0 +1,366 @@
+{% extends "base.html" %}
+
+{% block styles %}
+<link rel="stylesheet" href="/static/css/wallet.css?v=3">
+<style>
+    /* Additional styles for new features */
+    .trading-mode-toggle {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: rgba(255, 255, 255, 0.05);
+        padding: 0.25rem 0.5rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .trading-mode-toggle:hover {
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .trading-mode-toggle.active {
+        background: rgba(16, 185, 129, 0.2);
+        color: #10b981;
+        border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .filter-group {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .filter-select {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: var(--text-primary);
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.8rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="wallet-grid">
+    <!-- 1. Binance Wallet (Top Left) -->
+    <div class="card item-binance">
+        <div class="card-header">
+            <div class="card-icon" style="background: #F3BA2F; color: black;">B</div>
+            <h3>Binance Wallet</h3>
+        </div>
+        <div class="card-body">
+            <div class="balance-large" id="binance-balance" style="font-size: 1.5rem;">Loading...</div>
+            <div class="balance-sub">Exchange Balance</div>
+            <div class="action-row" style="margin-top: 1rem;">
+                <button class="btn-secondary btn-sm" onclick="openModal('deposit')">Deposit</button>
+                <button class="btn-secondary btn-sm" onclick="openModal('withdraw')">Withdraw</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Total Balance & Trading Mode (Top Middle) -->
+    <div class="card item-total">
+        <div class="card-header">
+            <h3>Total Balance</h3>
+            <div class="trading-mode-toggle" id="tradingModeToggle" onclick="toggleTradingMode()">
+                <span id="tradingModeIcon">🤖</span>
+                <span id="tradingModeText">Auto-Pilot: OFF</span>
+            </div>
+        </div>
+        <div class="card-body" style="text-align: center; padding: 1.5rem 0;">
+            <div class="balance-large" id="total-balance">$0.00</div>
+            <div class="balance-sub">≈ 0.00000000 BTC</div>
+            <div class="pnl-badge positive">+2.4% (24h)</div>
+        </div>
+    </div>
+
+    <!-- 3. Web3 Wallet (Top Right) -->
+    <div class="card item-web3">
+        <div class="card-header">
+            <div class="card-icon" style="background: #627EEA;">Ξ</div>
+            <h3>Web3 Wallet</h3>
+            <span class="badge">Multi-Chain</span>
+        </div>
+        <div class="card-body">
+            <div id="web3-intro" style="text-align: center; padding: 1rem; display: none;">
+                <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1rem;">Create your first Web3
+                    wallet to interact with dApps.</p>
+                <button class="btn-primary web3-btn" onclick="createWeb3Wallet()">Create Wallet</button>
+            </div>
+            <div id="web3-dashboard" style="display: none; flex-direction: column; gap: 1rem; height: 100%;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div class="balance-large" style="font-size: 1.4rem;" id="web3-balance-display">0.00 ETH</div>
+                        <div class="balance-sub">Total Web3 Assets</div>
+                    </div>
+                    <button class="btn-primary btn-sm" onclick="openModal('web3_send')">Send</button>
+                </div>
+
+                <div class="wallet-list-container"
+                    style="flex: 1; overflow-y: auto; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 0.5rem;">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <span style="font-size: 0.8rem; font-weight: bold;">My Wallets</span>
+                        <button class="btn-secondary btn-xs" onclick="createWeb3Wallet()" style="font-size: 0.7rem;">+
+                            New</button>
+                    </div>
+                    <div id="web3-wallet-list" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                        <!-- Wallets injected here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. Wallet Operations (Middle Left) -->
+    <div class="card item-operations">
+        <div class="card-header">
+            <h3>Operations</h3>
+        </div>
+        <div class="ops-grid">
+            <button class="op-btn" onclick="openModal('deposit')">
+                <div class="op-icon">⬇️</div>
+                <span>Deposit</span>
+            </button>
+            <button class="op-btn" onclick="openModal('withdraw')">
+                <div class="op-icon">📤</div>
+                <span>Withdraw</span>
+            </button>
+            <button class="op-btn" onclick="openModal('send')">
+                <div class="op-icon">💸</div>
+                <span>Send</span>
+            </button>
+            <button class="op-btn" onclick="openModal('receive')">
+                <div class="op-icon">📥</div>
+                <span>Receive</span>
+            </button>
+            <button class="op-btn" onclick="openModal('convert')">
+                <div class="op-icon">🔄</div>
+                <span>Convert</span>
+            </button>
+            <button class="op-btn" onclick="openModal('transfer')">
+                <div class="op-icon">↔️</div>
+                <span>Transfer</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- 5. Chat Assistant (Middle Right) -->
+    <div class="card item-chat">
+        <div class="card-header">
+            <h3>Wallet Assistant</h3>
+        </div>
+        <div class="chat-container">
+            <div class="chat-messages" id="chatMessages">
+                <div class="chat-msg bot">Hello! I can help you with transfers, deposits, or explaining your portfolio.
+                </div>
+            </div>
+            <div class="chat-input-area">
+                <input type="text" id="chatInput" placeholder="Ask me anything..."
+                    onkeypress="if(event.key==='Enter') sendChatMessage()">
+                <button onclick="sendChatMessage()">➤</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 6. Transaction History (Bottom Left) -->
+    <div class="card item-history">
+        <div class="card-header">
+            <h3>History</h3>
+            <div class="filter-group">
+                <select id="filterType" class="filter-select">
+                    <option value="all">All Types</option>
+                    <option value="deposit">Deposit</option>
+                    <option value="withdraw">Withdraw</option>
+                    <option value="buy">Buy</option>
+                    <option value="sell">Sell</option>
+                    <option value="web3_send">Web3 Send</option>
+                </select>
+                <select id="filterStatus" class="filter-select">
+                    <option value="all">All Status</option>
+                    <option value="completed">Completed</option>
+                    <option value="pending">Pending</option>
+                    <option value="failed">Failed</option>
+                </select>
+                <input type="text" id="filterSearch" placeholder="Search asset..." class="filter-select"
+                    style="width: 100px;">
+            </div>
+        </div>
+        <div class="tx-list">
+            <!-- Transactions injected here -->
+            <div style="text-align: center; padding: 2rem; color: var(--text-secondary);">Loading transactions...</div>
+        </div>
+    </div>
+
+    <!-- 7. Advanced Features (Bottom Right) -->
+    <div class="card item-advanced">
+        <div class="card-header">
+            <h3>Advanced</h3>
+        </div>
+        <div class="advanced-list">
+            <div class="adv-item">
+                <div class="adv-icon">🔑</div>
+                <div class="adv-info">
+                    <h4>Export Private Keys</h4>
+                    <p>Backup your Web3 wallets</p>
+                </div>
+                <button class="btn-secondary btn-sm" onclick="exportKeys()">Export</button>
+            </div>
+            <div class="adv-item">
+                <div class="adv-icon">⚙️</div>
+                <div class="adv-info">
+                    <h4>Network Settings</h4>
+                    <p>Configure RPC endpoints</p>
+                </div>
+                <button class="btn-secondary btn-sm" onclick="showToast('Coming soon', 'info')">Config</button>
+            </div>
+            <div class="adv-item">
+                <div class="adv-icon">📜</div>
+                <div class="adv-info">
+                    <h4>Interact with Contract</h4>
+                    <p>Call smart contract functions</p>
+                </div>
+                <button class="btn-secondary btn-sm" onclick="showToast('Coming soon', 'info')">Interact</button>
+            </div>
+            <div
+                style="margin-top: 1rem; padding: 0.5rem; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 6px; font-size: 0.75rem; color: #fca5a5;">
+                <strong>Risk Warning:</strong> Advanced features are for experienced users. Never share your private
+                keys.
+            </div>
+        </div>
+    </div>
+
+    <!-- 8. Assets Table (Bottom Full Width) -->
+    <div class="card item-assets">
+        <div class="card-header">
+            <h3>Assets</h3>
+        </div>
+        <div style="overflow-x: auto;">
+            <table class="assets-table">
+                <thead>
+                    <tr>
+                        <th style="text-align: left;">Asset</th>
+                        <th style="text-align: left;">Balance</th>
+                        <th style="text-align: left;">Value (USDT)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Assets injected here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Action Modal -->
+<div id="actionModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="modalTitle">Action</h3>
+            <button class="close-btn" onclick="closeModal()">×</button>
+        </div>
+        <div class="modal-body">
+
+            <!-- Wallet Selection (Source/Destination) -->
+            <div class="form-group" id="sourceWalletField" style="display: none;">
+                <label>From Wallet</label>
+                <div class="wallet-selector">
+                    <button class="wallet-select-btn active" data-value="spot"
+                        onclick="selectModalWallet('spot')">Spot</button>
+                    <button class="wallet-select-btn" data-value="web3"
+                        onclick="selectModalWallet('web3')">Web3</button>
+                </div>
+                <input type="hidden" id="modalWalletType" value="spot">
+            </div>
+
+            <!-- Network Selection -->
+            <div class="form-group" id="networkField" style="display: none;">
+                <label>Network</label>
+                <select id="modalNetwork" class="modal-input">
+                    <option value="ERC20">Ethereum (ERC20)</option>
+                    <option value="TRC20">Tron (TRC20)</option>
+                    <option value="BSC">BNB Smart Chain (BEP20)</option>
+                    <option value="SOL">Solana</option>
+                </select>
+            </div>
+
+            <!-- Address Input -->
+            <div class="form-group" id="addressField" style="display: none;">
+                <label>Recipient Address / Username</label>
+                <input type="text" id="modalAddress" class="modal-input" placeholder="Enter address or username">
+            </div>
+
+            <!-- Amount Input -->
+            <div class="form-group" id="amountField">
+                <label>Amount</label>
+                <div class="amount-input-wrapper">
+                    <input type="number" id="modalAmount" class="modal-input" placeholder="0.00">
+                    <select id="modalCurrency" class="currency-select" onchange="updateNetworkOptions()">
+                        <option value="USDT">USDT</option>
+                        <option value="BTC">BTC</option>
+                        <option value="ETH">ETH</option>
+                        <option value="SOL">SOL</option>
+                        <option value="BNB">BNB</option>
+                    </select>
+                </div>
+                <div class="amount-helpers">
+                    <span id="usdPreview">≈ $0.00</span>
+                    <span class="max-btn" onclick="setMaxAmount()">MAX</span>
+                </div>
+            </div>
+
+            <!-- Memo Field (Optional) -->
+            <div class="form-group" id="memoField" style="display: none;">
+                <label>Memo (Optional)</label>
+                <input type="text" id="modalMemo" class="modal-input" placeholder="Tag/Memo">
+            </div>
+
+            <!-- QR Code Display -->
+            <div class="form-group" id="qrCodeField" style="display: none; text-align: center;">
+                <label>Scan to Deposit</label>
+                <div id="qrcode"
+                    style="margin: 1rem auto; display: inline-block; padding: 10px; background: white; border-radius: 8px;">
+                </div>
+                <div class="address-box">
+                    <span id="depositAddress"
+                        style="font-family: 'JetBrains Mono'; font-size: 0.8rem; word-break: break-all;">0x...</span>
+                    <button class="copy-btn" onclick="copyDepositAddress()">📋</button>
+                </div>
+            </div>
+
+            <button class="btn-primary full-width" id="modalSubmitBtn" onclick="submitAction()">Confirm</button>
+        </div>
+    </div>
+</div>
+
+<!-- QR Modal for Wallets -->
+<div id="qrModal" class="modal" style="z-index: 10001;">
+    <div class="modal-content" style="max-width: 350px; text-align: center;">
+        <div class="modal-header">
+            <h3>Wallet Address</h3>
+            <button class="close-btn" onclick="document.getElementById('qrModal').style.display='none'">×</button>
+        </div>
+        <div class="modal-body">
+            <div id="walletQrCode"
+                style="margin: 1rem auto; display: inline-block; padding: 10px; background: white; border-radius: 8px;">
+            </div>
+            <p id="walletQrAddress"
+                style="font-family: 'JetBrains Mono'; font-size: 0.8rem; word-break: break-all; background: rgba(255,255,255,0.05); padding: 0.5rem; border-radius: 4px; margin-top: 1rem;">
+            </p>
+            <button class="btn-secondary full-width" style="margin-top: 1rem;"
+                onclick="navigator.clipboard.writeText(document.getElementById('walletQrAddress').innerText).then(()=>showToast('Copied!'))">Copy
+                Address</button>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="/static/js/wallet.js"></script>
+{% endblock %}

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Trading Bot</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/base.css">
+    {% block styles %}{% endblock %}
+</head>
+
+<body>
+    <div class="app-wrapper">
+        <aside class="sidebar">
+            <div class="logo">
+                DEVIL AI
+            </div>
+            <nav>
+                <a href="/dashboard" class="nav-link" title="Dashboard">
+                    <div class="nav-icon">📊</div>
+                    <span class="nav-text">Dashboard</span>
+                </a>
+                <a href="/market" class="nav-link" title="Market Charts">
+                    <div class="nav-icon">📈</div>
+                    <span class="nav-text">Market Charts</span>
+                </a>
+                <a href="/ai-models" class="nav-link" title="AI Models">
+                    <div class="nav-icon">🤖</div>
+                    <span class="nav-text">AI Models</span>
+                </a>
+                <a href="/wallet" class="nav-link" title="Wallet">
+                    <div class="nav-icon">💰</div>
+                    <span class="nav-text">Wallet</span>
+                </a>
+                <a href="/profile" class="nav-link" title="Profile">
+                    <div class="nav-icon">👤</div>
+                    <span class="nav-text">Profile</span>
+                </a>
+            </nav>
+
+            <!-- Clock & Date Section -->
+            <div
+                style="margin-top: auto; padding: 1rem 0.5rem; text-align: center; border-top: 1px solid var(--card-border);">
+                <div id="app-clock"
+                    style="font-family: 'JetBrains Mono', monospace; font-size: 1rem; font-weight: 700; color: var(--accent-color); white-space: nowrap; overflow: hidden;">
+                    --:--:--</div>
+                <div id="app-date"
+                    style="font-size: 0.7rem; color: var(--text-secondary); margin-top: 4px; white-space: nowrap; overflow: hidden;">
+                    --- --, ----</div>
+            </div>
+
+            <div>
+                <a href="/auth/logout" class="nav-link" style="color: #ef4444;" title="Logout">
+                    <div class="nav-icon">🚪</div>
+                    <span class="nav-text">Logout</span>
+                </a>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <!-- Core Application Logic (Global State, Clock, Caching) -->
+    <script src="/static/js/core.js"></script>
+
+    {% block scripts %}{% endblock %}
+</body>
+
+</html>

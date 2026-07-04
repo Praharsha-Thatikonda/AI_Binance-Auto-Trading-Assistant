@@ -1,0 +1,17 @@
+fastapi
+uvicorn
+ccxt
+jinja2
+python-dotenv
+requests
+pydantic
+pandas
+numpy
+openai
+google-generativeai
+web3
+passlib[bcrypt]
+sqlalchemy
+httpx
+python-multipart
+python-jose
